@@ -20,51 +20,79 @@ Program to implement the Decision Tree Classifier Model for Predicting Employee 
 Developed by: S.Keerthana
 RegisterNumber:  25004216
 */
-
-
 import pandas as pd
-data=pd.read_csv("Employee.csv")
-data.head()
-
-data.info()
-
-data.isnull().sum()
-
-data['left'].value_counts()
-
-from sklearn.preprocessing import LabelEncoder
-le=LabelEncoder()
-data['salary']=le.fit_transform(data['salary'])
-data.head()
-
-x=data[['satisfaction_level','last_evaluation','number_project','average_montly_hours','time_spend_company','Work_accident','promotion_last_5years','salary']]
-x.head()
-
-y=data['left']
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.model_selection import train_test_split
-x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2,random_state=100)
-from sklearn.tree import DecisionTreeClassifier
-dt=DecisionTreeClassifier(criterion='entropy')
-dt.fit(x_train,y_train)
-y_predict=dt.predict(x_test)
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
-from sklearn import metrics
-accuracy=metrics.accuracy_score(y_test,y_predict)
-accuracy
+# --- STEP 1: Load your local dataset ---
+file_path =("C:/Users/acer/Downloads/Employee.csv")
+df = pd.read_csv(file_path)
 
-dt.predict([[0.5,0.8,9,206,6,0,1,2]])
+# Display first few rows to verify column names
+print("Dataset Columns:", df.columns.tolist())
+
+# --- STEP 2: Preprocessing ---
+# Note: Ensure the column names ('salary', 'left') match your CSV exactly.
+# If your CSV uses different names, update them below.
+if 'salary' in df.columns:
+    salary_mapping = {'low': 0, 'medium': 1, 'high': 2}
+    df['salary'] = df['salary'].map(salary_mapping)
+
+# Handle other categorical text data if necessary (e.g., Department)
+df = pd.get_dummies(df, drop_first=True)
+
+# Define Features (X) and Target (y)
+# Replace 'left' with the actual name of your target column if different
+target_col = 'left' 
+X = df.drop(target_col, axis=1)
+y = df[target_col]
+
+# --- STEP 3: Split Data ---
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# --- STEP 4: Train Model ---
+model = DecisionTreeClassifier(criterion='entropy', max_depth=3, random_state=42)
+model.fit(X_train, y_train)
+
+# --- STEP 5: Evaluation & Visualization ---
+y_pred = model.predict(X_test)
+
+print(f"\nAccuracy Score: {accuracy_score(y_test, y_pred) * 100:.2f}%")
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
+# 1. Plot Confusion Matrix
+plt.figure(figsize=(6, 4))
+sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Blues')
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+
+
+# 2. Plot Decision Tree
+plt.figure(figsize=(20, 10))
+plot_tree(model, 
+          feature_names=X.columns, 
+          class_names=['Stayed', 'Left'], 
+          filled=True, 
+          rounded=True,
+          fontsize=10)
+plt.title("Employee Churn Decision Tree Logic")
+plt.show()
+
 
 ```
 
 ## Output:
-<img width="1246" height="192" alt="Screenshot 2026-02-09 085002" src="https://github.com/user-attachments/assets/8e281a5f-4513-4bcd-be5c-91cd7d17cd95" />
-<img width="535" height="364" alt="Screenshot 2026-02-09 085103" src="https://github.com/user-attachments/assets/f89e6dbd-8048-4cfa-90ec-19063b45ccbc" />
-<img width="311" height="231" alt="Screenshot 2026-02-09 085129" src="https://github.com/user-attachments/assets/a2cb7d3d-d9da-4e32-9663-48c2a7e89c84" />
-<img width="287" height="74" alt="Screenshot 2026-02-09 085206" src="https://github.com/user-attachments/assets/93dd6d9a-6785-422c-9bf4-5a8630a2509f" />
-<img width="1286" height="222" alt="Screenshot 2026-02-09 085241" src="https://github.com/user-attachments/assets/5bdead84-601a-455e-9795-09868c679aac" />
-<img width="126" height="24" alt="Screenshot 2026-02-09 085343" src="https://github.com/user-attachments/assets/4771e8ae-9342-447b-adab-eac6435f92d2" />
-<img width="1249" height="112" alt="Screenshot 2026-02-09 085418" src="https://github.com/user-attachments/assets/7ef87cbe-f3cc-4c61-b161-c64be1d55fd7" />
+<img width="1240" height="52" alt="Screenshot 2026-02-25 113839" src="https://github.com/user-attachments/assets/027a623e-1a42-4735-91bb-9c9427aedf4c" />
+<img width="718" height="68" alt="Screenshot 2026-02-25 113922" src="https://github.com/user-attachments/assets/b7c013bc-1659-4f07-8bf1-131023c03f00" />
+<img width="695" height="276" alt="Screenshot 2026-02-25 113943" src="https://github.com/user-attachments/assets/abe28b2f-d64e-498e-9b74-9282d6299428" />
+<img width="768" height="507" alt="Screenshot 2026-02-25 114013" src="https://github.com/user-attachments/assets/02e26808-3609-4fe8-84f6-81cdd23ab1db" />
+<img width="1227" height="642" alt="Screenshot 2026-02-25 114040" src="https://github.com/user-attachments/assets/1814a1d0-3067-4766-a104-04bdf800ad3a" />
 
 
 
